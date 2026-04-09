@@ -64,6 +64,7 @@ export default function StoreComments({ storeId, storeName }) {
   const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
+  const [postedNotice, setPostedNotice] = useState("");
   const [mode, setMode] = useState("local");
 
   const canPostToSanity = Boolean(sanityWriteClient);
@@ -95,6 +96,12 @@ export default function StoreComments({ storeId, storeName }) {
     loadComments();
   }, [loadComments]);
 
+  useEffect(() => {
+    if (!postedNotice) return undefined;
+    const timer = setTimeout(() => setPostedNotice(""), 2500);
+    return () => clearTimeout(timer);
+  }, [postedNotice]);
+
   const hint = useMemo(() => {
     if (canPostToSanity) {
       return "Comments are saved to your Sanity project (visible to everyone after you deploy your schema).";
@@ -108,6 +115,7 @@ export default function StoreComments({ storeId, storeName }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setFormError("");
+    setPostedNotice("");
 
     const trimmed = body.trim();
     if (trimmed.length < 2) {
@@ -119,6 +127,20 @@ export default function StoreComments({ storeId, storeName }) {
       return;
     }
 
+    const submittedName = authorName.trim() || "Anonymous";
+    const optimisticId = `optimistic-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const optimisticComment = {
+      id: optimisticId,
+      authorName: submittedName,
+      body: trimmed,
+      createdAt: new Date().toISOString(),
+      source: "local"
+    };
+
+    // Show immediate feedback so users see their comment instantly.
+    setComments((prev) => [optimisticComment, ...prev]);
+    setAuthorName("");
+    setBody("");
     setSubmitting(true);
 
     try {
@@ -128,47 +150,46 @@ export default function StoreComments({ storeId, storeName }) {
           store: { _type: "reference", _ref: storeId },
           body: trimmed
         };
-        const name = authorName.trim();
+        const name = submittedName === "Anonymous" ? "" : submittedName;
         if (name) doc.authorName = name;
 
         await sanityWriteClient.create(doc);
-        setAuthorName("");
-        setBody("");
         setMode("sanity-client");
         await loadComments();
       } else if (canUseServerApi) {
         await postCommentViaServer({
           storeId,
-          authorName: authorName.trim() || "Anonymous",
+          authorName: submittedName,
           body: trimmed
         });
-        setAuthorName("");
-        setBody("");
         setMode("server");
         await loadComments();
       } else {
         addLocalComment(storeId, {
-          authorName: authorName.trim() || "Anonymous",
+          authorName: submittedName,
           body: trimmed
         });
-        setAuthorName("");
-        setBody("");
         setMode("local");
         await loadComments();
       }
+      setPostedNotice("Comment posted.");
     } catch (err) {
       console.error(err);
+      setComments((prev) => prev.filter((c) => c.id !== optimisticId));
+      setAuthorName(submittedName === "Anonymous" ? "" : submittedName);
+      setBody(trimmed);
       if (canUseServerApi) {
         setFormError(`Could not save that comment. ${sanityErrorMessage(err)}`);
       } else {
         addLocalComment(storeId, {
-          authorName: authorName.trim() || "Anonymous",
+          authorName: submittedName,
           body: trimmed
         });
-        setAuthorName("");
-        setBody("");
         setMode("local");
         await loadComments();
+        setAuthorName("");
+        setBody("");
+        setPostedNotice("Comment posted on this browser.");
       }
     } finally {
       setSubmitting(false);
@@ -241,6 +262,11 @@ export default function StoreComments({ storeId, storeName }) {
         {formError && (
           <p className="status-note warning" role="alert">
             {formError}
+          </p>
+        )}
+        {postedNotice && (
+          <p className="status-note success" role="status">
+            {postedNotice}
           </p>
         )}
         <button type="submit" className="comment-submit" disabled={submitting}>

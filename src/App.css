@@ -322,6 +322,11 @@ h1 {
   color: #8b0000;
 }
 
+.status-note.success {
+  color: #1f6a4b;
+  font-weight: 600;
+}
+
 button {
   border: none;
   border-radius: 10px;
