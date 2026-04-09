@@ -49,6 +49,8 @@ After setting env vars, redeploy.
 
 If the API route is not configured, the app falls back to browser-only comments.
 
+Note: This line is a tiny deploy-trigger update.
+
 ## Docs
 
 - [Sanity getting started](https://www.sanity.io/docs/introduction/getting-started)
