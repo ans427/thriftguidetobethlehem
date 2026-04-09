@@ -103,13 +103,10 @@ export default function StoreComments({ storeId, storeName }) {
   }, [postedNotice]);
 
   const hint = useMemo(() => {
-    if (canPostToSanity) {
-      return "Comments are saved to your Sanity project (visible to everyone after you deploy your schema).";
+    if (canPostToSanity || mode === "server") {
+      return "Comments are saved to your Sanity project.";
     }
-    if (mode === "server") {
-      return "Comments are saved to your Sanity project through the secure server route.";
-    }
-    return "Comments are saved on this browser only. Configure the Vercel server route env vars to make comments shared.";
+    return "";
   }, [canPostToSanity, mode]);
 
   async function handleSubmit(e) {
@@ -201,7 +198,7 @@ export default function StoreComments({ storeId, storeName }) {
   return (
     <section className="card store-comments" aria-labelledby={headingId}>
       <h2 id={headingId}>Visitor comments{storeName ? ` · ${storeName}` : ""}</h2>
-      <p className="section-hint comments-hint">{hint}</p>
+      {hint && <p className="section-hint comments-hint">{hint}</p>}
 
       {loading && <p className="muted">Loading comments…</p>}
 
