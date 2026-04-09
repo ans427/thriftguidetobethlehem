@@ -3,7 +3,7 @@ import { createClient } from "@sanity/client";
 const projectId = (process.env.SANITY_PROJECT_ID || process.env.VITE_SANITY_PROJECT_ID || "").trim();
 const dataset = (process.env.SANITY_DATASET || process.env.VITE_SANITY_DATASET || "production").trim();
 const apiVersion = (process.env.SANITY_API_VERSION || process.env.VITE_SANITY_API_VERSION || "2025-01-01").trim();
-const writeToken = (process.env.SANITY_WRITE_TOKEN || "").trim();
+const writeToken = (process.env.SANITY_WRITE_TOKEN || process.env.VITE_SANITY_API_WRITE_TOKEN || "").trim();
 
 const client =
   projectId && writeToken
@@ -23,8 +23,11 @@ export default async function handler(req, res) {
   }
 
   if (!client) {
+    const missing = [];
+    if (!projectId) missing.push("SANITY_PROJECT_ID (or VITE_SANITY_PROJECT_ID)");
+    if (!writeToken) missing.push("SANITY_WRITE_TOKEN (or VITE_SANITY_API_WRITE_TOKEN)");
     return res.status(500).json({
-      error: "Server comment API is not configured. Set SANITY_WRITE_TOKEN and SANITY_PROJECT_ID in Vercel."
+      error: `Server comment API is not configured. Missing: ${missing.join(", ")}.`
     });
   }
 
