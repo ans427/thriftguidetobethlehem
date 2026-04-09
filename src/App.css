@@ -428,9 +428,76 @@ h2 {
   background: #f6fbf7;
 }
 
+.stores-map-wrap {
+  margin-top: 0.75rem;
+}
+
+.stores-map {
+  width: 100%;
+  height: clamp(260px, 45vw, 430px);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.map-popup p {
+  margin: 0.25rem 0;
+}
+
+.map-store-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.map-store-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: #f8faf8;
+  padding: 0.8rem;
+}
+
+.map-store-item h3 {
+  margin: 0 0 0.2rem;
+}
+
 .facts-list {
   margin: 0;
   padding-left: 1.2rem;
+}
+
+.source-note {
+  margin: 0.9rem 0 0;
+  font-size: 0.92rem;
+  color: var(--color-fg-muted);
+}
+
+.source-note a {
+  color: var(--color-accent-dark);
+  font-weight: 600;
+}
+
+.impact-photo-grid {
+  margin: 0.25rem 0 1rem;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.impact-photo-figure {
+  margin: 0;
+}
+
+.impact-photo {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: #eef4ef;
 }
 
 .section-hint {

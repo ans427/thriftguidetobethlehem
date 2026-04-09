@@ -35,10 +35,13 @@ export default function SiteLayout() {
             >
               Stores
             </NavLink>
-            <Link to="/#map" className="site-nav-link">
+            <NavLink
+              to="/map"
+              className={({ isActive }) => `site-nav-link${isActive ? " is-active" : ""}`}
+            >
               Map
-            </Link>
-            <Link to="/#facts" className="site-nav-link">
+            </NavLink>
+            <Link to="/why-thrifting-matters" className="site-nav-link">
               Why it matters
             </Link>
           </nav>
@@ -69,10 +72,10 @@ export default function SiteLayout() {
                   <Link to="/stores">Thrift stores</Link>
                 </li>
                 <li>
-                  <Link to="/#map">Map</Link>
+                  <Link to="/map">Map</Link>
                 </li>
                 <li>
-                  <Link to="/#facts">Fast fashion facts</Link>
+                  <Link to="/why-thrifting-matters">Why thrifting matters</Link>
                 </li>
               </ul>
             </div>

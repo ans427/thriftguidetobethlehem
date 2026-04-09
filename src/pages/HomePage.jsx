@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { fallbackResources, fallbackStores } from "../data/fallbackContent";
+import { fallbackStores } from "../data/fallbackContent";
 import { storePath } from "../lib/storePath";
 import { hasSanityEnv, sanityClient } from "../lib/sanity";
 
@@ -12,15 +12,8 @@ const storesQuery = `*[_type == "thriftStore" && featured == true] | order(name 
   slug
 }`;
 
-const resourcesQuery = `*[_type == "resourceArticle" && featured == true] | order(_createdAt desc)[0...5]{
-  _id,
-  title,
-  summary
-}`;
-
 export default function HomePage() {
   const [stores, setStores] = useState(fallbackStores);
-  const [resources, setResources] = useState(fallbackResources);
   const [loading, setLoading] = useState(hasSanityEnv);
   const [error, setError] = useState("");
 
@@ -30,13 +23,9 @@ export default function HomePage() {
 
       try {
         setLoading(true);
-        const [storeDocs, resourceDocs] = await Promise.all([
-          sanityClient.fetch(storesQuery),
-          sanityClient.fetch(resourcesQuery)
-        ]);
+        const storeDocs = await sanityClient.fetch(storesQuery);
 
         if (storeDocs?.length) setStores(storeDocs);
-        if (resourceDocs?.length) setResources(resourceDocs);
       } catch (fetchError) {
         setError(
           "Using local fallback content. If the console shows CORS, add http://localhost:5173 under Sanity Manage → API → CORS origins. For a private dataset, set VITE_SANITY_API_READ_TOKEN in .env (see .env.example)."
@@ -60,11 +49,11 @@ export default function HomePage() {
           and make more sustainable shopping choices.
         </p>
         <div className="hero-actions">
-          <Link to="/#map" className="hero-btn hero-btn--primary">
+          <Link to="/map" className="hero-btn hero-btn--primary">
             Explore map
           </Link>
-          <Link to="/#facts" className="hero-btn hero-btn--ghost">
-            Why fast fashion matters
+          <Link to="/why-thrifting-matters" className="hero-btn hero-btn--ghost">
+            Why thrifting matters
           </Link>
           <Link to="/stores" className="hero-btn hero-btn--ghost">
             Browse all stores
@@ -96,24 +85,26 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="map" className="card map-placeholder section-anchor">
-          <h2>Interactive Map (next step)</h2>
+        <section className="card">
+          <h2>Interactive Map</h2>
           <p>
-            This section is ready for Mapbox or Leaflet. You can plot shops, filter by
-            neighborhood, and click markers for hours, price range, and donation info.
+            Open the dedicated map page to view all stores you have added and explore markers with
+            full details.
           </p>
-          <div className="fake-map" aria-label="Map placeholder">
-            Map Component Placeholder
-          </div>
+          <Link to="/map" className="hero-btn hero-btn--ghost">
+            Open full map
+          </Link>
         </section>
 
-        <section id="facts" className="card section-anchor">
-          <h2>Fast Fashion Facts</h2>
-          <ul className="facts-list">
-            {resources.map((resource) => (
-              <li key={resource._id}>{resource.title || resource.summary}</li>
-            ))}
-          </ul>
+        <section className="card">
+          <h2>Why Thrifting Matters</h2>
+          <p>
+            Learn how secondhand shopping reduces textile waste, lowers demand for new production,
+            and helps combat the environmental impact of fast fashion.
+          </p>
+          <Link to="/why-thrifting-matters" className="hero-btn hero-btn--ghost">
+            Read the full guide
+          </Link>
         </section>
       </div>
     </div>

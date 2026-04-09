@@ -11,6 +11,8 @@ export const fallbackStores = [
       "Neighborhood shop with student-friendly prices and a rotating vintage rack.",
     website: null,
     instagram: null,
+    lat: 40.6067,
+    lng: -75.3786,
     categories: ["affordable", "vintage", "student-friendly"],
     slug: { current: "second-chance-thrift" }
   },
@@ -25,6 +27,8 @@ export const fallbackStores = [
     description: "Curated secondhand workwear and casual staples near downtown.",
     website: null,
     instagram: null,
+    lat: 40.6259,
+    lng: -75.3705,
     categories: ["workwear", "donation drop-off", "curated"],
     slug: { current: "main-street-rewear" }
   },
@@ -39,6 +43,8 @@ export const fallbackStores = [
     description: "Volunteer-run nonprofit closet supporting families with clothing and housewares.",
     website: null,
     instagram: null,
+    lat: 40.6401,
+    lng: -75.3668,
     categories: ["non-profit", "family clothing", "volunteer-run"],
     slug: { current: "community-closet-co-op" }
   }
