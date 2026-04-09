@@ -27,9 +27,14 @@ export default function SiteLayout() {
             >
               Home
             </NavLink>
-            <Link to="/#stores" className="site-nav-link">
+            <NavLink
+              to="/stores"
+              className={({ isActive }) =>
+                `site-nav-link${isActive ? " is-active" : ""}`
+              }
+            >
               Stores
-            </Link>
+            </NavLink>
             <Link to="/#map" className="site-nav-link">
               Map
             </Link>
@@ -61,7 +66,7 @@ export default function SiteLayout() {
                   <Link to="/">Home</Link>
                 </li>
                 <li>
-                  <Link to="/#stores">Thrift stores</Link>
+                  <Link to="/stores">Thrift stores</Link>
                 </li>
                 <li>
                   <Link to="/#map">Map</Link>

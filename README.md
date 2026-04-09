@@ -34,6 +34,21 @@ If files like `sanity.config.js` already exist, the CLI may **skip** overwriting
 - Site: `npm run build`
 - Studio (optional): `npm run build:studio`
 
+## Shared comments on Vercel (recommended)
+
+The frontend now posts comments to `POST /api/comments` when deployed, so your write token can stay server-side.
+
+Set these in Vercel Project Settings -> Environment Variables:
+
+- `SANITY_PROJECT_ID`
+- `SANITY_DATASET`
+- `SANITY_API_VERSION`
+- `SANITY_WRITE_TOKEN` (Editor role or scoped token that can create `storeComment`)
+
+After setting env vars, redeploy.
+
+If the API route is not configured, the app falls back to browser-only comments.
+
 ## Docs
 
 - [Sanity getting started](https://www.sanity.io/docs/introduction/getting-started)

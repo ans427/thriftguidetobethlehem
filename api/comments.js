@@ -1,0 +1,59 @@
+import { createClient } from "@sanity/client";
+
+const projectId = (process.env.SANITY_PROJECT_ID || process.env.VITE_SANITY_PROJECT_ID || "").trim();
+const dataset = (process.env.SANITY_DATASET || process.env.VITE_SANITY_DATASET || "production").trim();
+const apiVersion = (process.env.SANITY_API_VERSION || process.env.VITE_SANITY_API_VERSION || "2025-01-01").trim();
+const writeToken = (process.env.SANITY_WRITE_TOKEN || "").trim();
+
+const client =
+  projectId && writeToken
+    ? createClient({
+        projectId,
+        dataset,
+        apiVersion,
+        token: writeToken,
+        useCdn: false
+      })
+    : null;
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    res.setHeader("Allow", "POST");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  if (!client) {
+    return res.status(500).json({
+      error: "Server comment API is not configured. Set SANITY_WRITE_TOKEN and SANITY_PROJECT_ID in Vercel."
+    });
+  }
+
+  const { storeId, authorName, body } = req.body || {};
+  const text = typeof body === "string" ? body.trim() : "";
+  const name = typeof authorName === "string" ? authorName.trim() : "";
+
+  if (!storeId || typeof storeId !== "string") {
+    return res.status(400).json({ error: "storeId is required." });
+  }
+  if (text.length < 2 || text.length > 2000) {
+    return res.status(400).json({ error: "Comment must be between 2 and 2000 characters." });
+  }
+
+  try {
+    const doc = {
+      _type: "storeComment",
+      store: { _type: "reference", _ref: storeId },
+      body: text
+    };
+    if (name) doc.authorName = name.slice(0, 80);
+
+    const created = await client.create(doc);
+    return res.status(201).json({
+      ok: true,
+      id: created?._id || null
+    });
+  } catch (error) {
+    const message = error?.message || "Failed to create comment.";
+    return res.status(error?.statusCode || 500).json({ error: message });
+  }
+}

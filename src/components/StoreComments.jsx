@@ -38,6 +38,25 @@ function mergeComments(sanityList, localList) {
   );
 }
 
+async function postCommentViaServer({ storeId, authorName, body }) {
+  const response = await fetch("/api/comments", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ storeId, authorName, body })
+  });
+
+  if (!response.ok) {
+    let errorText = "Failed to save comment via server API.";
+    try {
+      const payload = await response.json();
+      if (payload?.error) errorText = payload.error;
+    } catch {
+      // Keep default fallback message
+    }
+    throw new Error(errorText);
+  }
+}
+
 export default function StoreComments({ storeId, storeName }) {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -45,8 +64,12 @@ export default function StoreComments({ storeId, storeName }) {
   const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
+  const [mode, setMode] = useState("local");
 
   const canPostToSanity = Boolean(sanityWriteClient);
+  const canUseServerApi =
+    typeof window !== "undefined" &&
+    (window.location.hostname !== "localhost" || window.location.port !== "5173");
 
   const loadComments = useCallback(async () => {
     if (!storeId) return;
@@ -76,8 +99,11 @@ export default function StoreComments({ storeId, storeName }) {
     if (canPostToSanity) {
       return "Comments are saved to your Sanity project (visible to everyone after you deploy your schema).";
     }
-    return "Comments are saved on this browser only. Add VITE_SANITY_API_WRITE_TOKEN to .env to save comments to Sanity for everyone.";
-  }, [canPostToSanity]);
+    if (mode === "server") {
+      return "Comments are saved to your Sanity project through the secure server route.";
+    }
+    return "Comments are saved on this browser only. Configure the Vercel server route env vars to make comments shared.";
+  }, [canPostToSanity, mode]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -108,6 +134,17 @@ export default function StoreComments({ storeId, storeName }) {
         await sanityWriteClient.create(doc);
         setAuthorName("");
         setBody("");
+        setMode("sanity-client");
+        await loadComments();
+      } else if (canUseServerApi) {
+        await postCommentViaServer({
+          storeId,
+          authorName: authorName.trim() || "Anonymous",
+          body: trimmed
+        });
+        setAuthorName("");
+        setBody("");
+        setMode("server");
         await loadComments();
       } else {
         addLocalComment(storeId, {
@@ -116,11 +153,23 @@ export default function StoreComments({ storeId, storeName }) {
         });
         setAuthorName("");
         setBody("");
+        setMode("local");
         await loadComments();
       }
     } catch (err) {
       console.error(err);
-      setFormError(`Could not save that comment. ${sanityErrorMessage(err)}`);
+      if (canUseServerApi) {
+        setFormError(`Could not save that comment. ${sanityErrorMessage(err)}`);
+      } else {
+        addLocalComment(storeId, {
+          authorName: authorName.trim() || "Anonymous",
+          body: trimmed
+        });
+        setAuthorName("");
+        setBody("");
+        setMode("local");
+        await loadComments();
+      }
     } finally {
       setSubmitting(false);
     }
@@ -153,7 +202,7 @@ export default function StoreComments({ storeId, storeName }) {
                 </time>
               </div>
               <p className="comment-body">{c.body}</p>
-              {c.source === "local" && !canPostToSanity && (
+              {c.source === "local" && mode === "local" && (
                 <span className="comment-badge">This device</span>
               )}
             </li>

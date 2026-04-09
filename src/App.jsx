@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import SiteLayout from "./components/SiteLayout";
 import HomePage from "./pages/HomePage";
+import StoresPage from "./pages/StoresPage";
 import StoreDetailPage from "./pages/StoreDetailPage";
 
 export default function App() {
@@ -8,6 +9,7 @@ export default function App() {
     <Routes>
       <Route element={<SiteLayout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/stores" element={<StoresPage />} />
         <Route path="/stores/:storeRef" element={<StoreDetailPage />} />
       </Route>
     </Routes>

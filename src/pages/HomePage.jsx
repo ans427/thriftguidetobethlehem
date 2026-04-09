@@ -66,6 +66,9 @@ export default function HomePage() {
           <Link to="/#facts" className="hero-btn hero-btn--ghost">
             Why fast fashion matters
           </Link>
+          <Link to="/stores" className="hero-btn hero-btn--ghost">
+            Browse all stores
+          </Link>
         </div>
         {!hasSanityEnv && (
           <p className="status-note">
