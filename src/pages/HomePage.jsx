@@ -89,11 +89,6 @@ export default function HomePage() {
                 <article className="shop-card">
                   <h3>{shop.name}</h3>
                   <p>{shop.neighborhood || "Bethlehem area"}</p>
-                  <ul>
-                    {(shop.categories || []).map((tag) => (
-                      <li key={tag}>{tag}</li>
-                    ))}
-                  </ul>
                   <span className="shop-card-cta">View details →</span>
                 </article>
               </Link>

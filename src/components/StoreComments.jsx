@@ -7,6 +7,7 @@ const commentsQuery = `*[_type == "storeComment" && references($storeId)] | orde
   _id,
   authorName,
   body,
+  "photoUrl": photo.asset->url,
   _createdAt
 }`;
 
@@ -16,6 +17,7 @@ function normalizeSanityComments(docs) {
     id: c._id,
     authorName: c.authorName?.trim() || "Anonymous",
     body: c.body || "",
+    photoUrl: c.photoUrl || "",
     createdAt: c._createdAt,
     source: "sanity"
   }));
@@ -27,6 +29,7 @@ function normalizeLocalComments(list) {
     id: c.id,
     authorName: c.authorName || "Anonymous",
     body: c.body || "",
+    photoUrl: c.photoUrl || "",
     createdAt: c.createdAt,
     source: "local"
   }));
@@ -38,11 +41,11 @@ function mergeComments(sanityList, localList) {
   );
 }
 
-async function postCommentViaServer({ storeId, authorName, body }) {
+async function postCommentViaServer({ storeId, authorName, body, photoDataUrl, photoFilename }) {
   const response = await fetch("/api/comments", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ storeId, authorName, body })
+    body: JSON.stringify({ storeId, authorName, body, photoDataUrl, photoFilename })
   });
 
   if (!response.ok) {
@@ -57,6 +60,15 @@ async function postCommentViaServer({ storeId, authorName, body }) {
   }
 }
 
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Could not read selected image file."));
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function StoreComments({ storeId, storeName }) {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -65,6 +77,8 @@ export default function StoreComments({ storeId, storeName }) {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
   const [postedNotice, setPostedNotice] = useState("");
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
   const [mode, setMode] = useState("local");
 
   const canPostToSanity = Boolean(sanityWriteClient);
@@ -125,11 +139,14 @@ export default function StoreComments({ storeId, storeName }) {
     }
 
     const submittedName = authorName.trim() || "Anonymous";
+    const submittedPhotoUrl = photoPreviewUrl;
+    const submittedPhotoFile = photoFile;
     const optimisticId = `optimistic-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const optimisticComment = {
       id: optimisticId,
       authorName: submittedName,
       body: trimmed,
+      ...(submittedPhotoUrl ? { photoUrl: submittedPhotoUrl } : {}),
       createdAt: new Date().toISOString(),
       source: "local"
     };
@@ -138,10 +155,12 @@ export default function StoreComments({ storeId, storeName }) {
     setComments((prev) => [optimisticComment, ...prev]);
     setAuthorName("");
     setBody("");
+    setPhotoFile(null);
+    setPhotoPreviewUrl("");
     setSubmitting(true);
 
     try {
-      if (sanityWriteClient) {
+      if (sanityWriteClient && !submittedPhotoUrl) {
         const doc = {
           _type: "storeComment",
           store: { _type: "reference", _ref: storeId },
@@ -154,17 +173,23 @@ export default function StoreComments({ storeId, storeName }) {
         setMode("sanity-client");
         await loadComments();
       } else if (canUseServerApi) {
+        const photoDataUrl = submittedPhotoFile
+          ? await readFileAsDataUrl(submittedPhotoFile)
+          : "";
         await postCommentViaServer({
           storeId,
           authorName: submittedName,
-          body: trimmed
+          body: trimmed,
+          photoDataUrl,
+          photoFilename: submittedPhotoFile?.name || ""
         });
         setMode("server");
         await loadComments();
       } else {
         addLocalComment(storeId, {
           authorName: submittedName,
-          body: trimmed
+          body: trimmed,
+          photoUrl: submittedPhotoUrl
         });
         setMode("local");
         await loadComments();
@@ -175,17 +200,22 @@ export default function StoreComments({ storeId, storeName }) {
       setComments((prev) => prev.filter((c) => c.id !== optimisticId));
       setAuthorName(submittedName === "Anonymous" ? "" : submittedName);
       setBody(trimmed);
+      setPhotoFile(submittedPhotoFile || null);
+      setPhotoPreviewUrl(submittedPhotoUrl || "");
       if (canUseServerApi) {
         setFormError(`Could not save that comment. ${sanityErrorMessage(err)}`);
       } else {
         addLocalComment(storeId, {
           authorName: submittedName,
-          body: trimmed
+          body: trimmed,
+          photoUrl: submittedPhotoUrl
         });
         setMode("local");
         await loadComments();
         setAuthorName("");
         setBody("");
+        setPhotoFile(null);
+        setPhotoPreviewUrl("");
         setPostedNotice("Comment posted on this browser.");
       }
     } finally {
@@ -220,6 +250,14 @@ export default function StoreComments({ storeId, storeName }) {
                 </time>
               </div>
               <p className="comment-body">{c.body}</p>
+              {c.photoUrl && (
+                <img
+                  src={c.photoUrl}
+                  alt={`Shared by ${c.authorName}`}
+                  className="comment-photo"
+                  loading="lazy"
+                />
+              )}
               {c.source === "local" && mode === "local" && (
                 <span className="comment-badge">This device</span>
               )}
@@ -255,6 +293,49 @@ export default function StoreComments({ storeId, storeName }) {
               placeholder="Parking tips, best days to visit, sizing, what to look for…"
             />
           </label>
+          <label className="comment-label">
+            Photo of your find <span className="optional">(optional)</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) {
+                  setPhotoFile(null);
+                  setPhotoPreviewUrl("");
+                  return;
+                }
+                if (file.size > 6 * 1024 * 1024) {
+                  setFormError("Photo is too large. Please choose an image under 6MB.");
+                  e.target.value = "";
+                  return;
+                }
+                try {
+                  const preview = await readFileAsDataUrl(file);
+                  setPhotoFile(file);
+                  setPhotoPreviewUrl(preview);
+                } catch (previewErr) {
+                  console.error(previewErr);
+                  setFormError("Could not preview that image. Try another file.");
+                }
+              }}
+            />
+          </label>
+          {photoPreviewUrl && (
+            <div className="comment-photo-preview-wrap">
+              <img src={photoPreviewUrl} alt="Selected upload preview" className="comment-photo-preview" />
+              <button
+                type="button"
+                className="hero-btn hero-btn--ghost"
+                onClick={() => {
+                  setPhotoFile(null);
+                  setPhotoPreviewUrl("");
+                }}
+              >
+                Remove photo
+              </button>
+            </div>
+          )}
         </div>
         {formError && (
           <p className="status-note warning" role="alert">

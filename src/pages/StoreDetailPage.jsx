@@ -17,6 +17,10 @@ const storeQuery = `*[_type == "thriftStore" && (slug.current == $ref || _id == 
   website,
   instagram,
   description,
+  "photoGallery": photos[]{
+    "url": asset->url,
+    "alt": coalesce(alt, "")
+  },
   "lat": coordinates.lat,
   "lng": coordinates.lng
 }`;
@@ -122,14 +126,20 @@ export default function StoreDetailPage() {
             <p className="muted">No description yet—add one in Sanity for this store.</p>
           )}
 
-          {!!(store.categories && store.categories.length) && (
+          {!!(store.photoGallery && store.photoGallery.length) && (
             <>
-              <h3 className="subheading">Tags</h3>
-              <ul className="tag-list">
-                {store.categories.map((tag) => (
-                  <li key={tag}>{tag}</li>
+              <h3 className="subheading">Store Photos</h3>
+              <div className="store-photo-grid">
+                {store.photoGallery.map((photo, idx) => (
+                  <img
+                    key={`${photo.url}-${idx}`}
+                    src={photo.url}
+                    alt={photo.alt || `${store.name} photo ${idx + 1}`}
+                    className="store-photo"
+                    loading="lazy"
+                  />
                 ))}
-              </ul>
+              </div>
             </>
           )}
         </section>

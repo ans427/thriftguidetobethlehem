@@ -10,7 +10,7 @@ export default function SiteLayout() {
       <header className="site-header">
         <div className="site-header-inner">
           <Link to="/" className="site-brand">
-            <span className="site-brand-mark" aria-hidden="true" />
+            <img src="/logo.png" alt="Thrift Guide Bethlehem logo" className="site-brand-logo" />
             <span className="site-brand-text">
               <span className="site-brand-name">Thrift Guide</span>
               <span className="site-brand-tag">Bethlehem, PA</span>
@@ -75,6 +75,9 @@ export default function SiteLayout() {
                   <Link to="/#facts">Fast fashion facts</Link>
                 </li>
               </ul>
+            </div>
+            <div className="site-footer-icon-wrap" aria-hidden="true">
+              <img src="/favicon-logo.png" alt="" className="site-footer-icon" />
             </div>
           </div>
           <div className="site-footer-bottom">

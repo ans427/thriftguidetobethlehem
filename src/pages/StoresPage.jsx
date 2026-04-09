@@ -13,8 +13,22 @@ const allStoresQuery = `*[_type == "thriftStore"] | order(name asc)[0...300]{
   description,
   categories,
   donationDropoff,
-  priceRange
+  priceRange,
+  "hasPhotos": defined(photos[0])
 }`;
+
+const quickFilterTags = [
+  "vintage",
+  "secondhand",
+  "thrift",
+  "consignment",
+  "affordable",
+  "student-friendly",
+  "non-profit",
+  "curated",
+  "furniture",
+  "family clothing"
+];
 
 function includesQuery(shop, query) {
   const haystack = [
@@ -40,6 +54,9 @@ export default function StoresPage() {
   const [neighborhood, setNeighborhood] = useState("all");
   const [category, setCategory] = useState("all");
   const [donationOnly, setDonationOnly] = useState(false);
+  const [photoOnly, setPhotoOnly] = useState(false);
+  const [priceFilter, setPriceFilter] = useState("all");
+  const [activeQuickTags, setActiveQuickTags] = useState([]);
   const [sortBy, setSortBy] = useState("name-asc");
 
   useEffect(() => {
@@ -87,6 +104,18 @@ export default function StoresPage() {
     if (donationOnly) {
       result = result.filter((shop) => Boolean(shop.donationDropoff));
     }
+    if (photoOnly) {
+      result = result.filter((shop) => Boolean(shop.hasPhotos));
+    }
+    if (priceFilter !== "all") {
+      result = result.filter((shop) => (shop.priceRange || "").trim() === priceFilter);
+    }
+    if (activeQuickTags.length > 0) {
+      result = result.filter((shop) => {
+        const tags = (shop.categories || []).map((t) => String(t).toLowerCase());
+        return activeQuickTags.every((selected) => tags.some((tag) => tag.includes(selected)));
+      });
+    }
 
     result.sort((a, b) => {
       if (sortBy === "name-desc") return (b.name || "").localeCompare(a.name || "");
@@ -97,7 +126,11 @@ export default function StoresPage() {
     });
 
     return result;
-  }, [stores, search, neighborhood, category, donationOnly, sortBy]);
+  }, [stores, search, neighborhood, category, donationOnly, photoOnly, priceFilter, activeQuickTags, sortBy]);
+
+  const priceRanges = useMemo(() => {
+    return Array.from(new Set(stores.map((s) => (s.priceRange || "").trim()).filter(Boolean))).sort();
+  }, [stores]);
 
   return (
     <div className="page stores-page">
@@ -151,6 +184,18 @@ export default function StoresPage() {
           </label>
 
           <label className="filter-label">
+            Price range
+            <select value={priceFilter} onChange={(e) => setPriceFilter(e.target.value)}>
+              <option value="all">All price ranges</option>
+              {priceRanges.map((price) => (
+                <option key={price} value={price}>
+                  {price}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="filter-label">
             Sort by
             <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
               <option value="name-asc">Name (A-Z)</option>
@@ -160,15 +205,48 @@ export default function StoresPage() {
           </label>
         </div>
 
+        <div className="quick-filter-wrap">
+          <span className="quick-filter-label">Quick filters:</span>
+          <div className="quick-filter-chips">
+            {quickFilterTags.map((tag) => {
+              const isActive = activeQuickTags.includes(tag);
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  className={`quick-filter-chip${isActive ? " active" : ""}`}
+                  onClick={() => {
+                    setActiveQuickTags((prev) =>
+                      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+                    );
+                  }}
+                >
+                  {tag}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="filter-actions">
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={donationOnly}
-              onChange={(e) => setDonationOnly(e.target.checked)}
-            />
-            Donation drop-off only
-          </label>
+          <div className="checkbox-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={donationOnly}
+                onChange={(e) => setDonationOnly(e.target.checked)}
+              />
+              Donation drop-off only
+            </label>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={photoOnly}
+                onChange={(e) => setPhotoOnly(e.target.checked)}
+              />
+              Has store photos
+            </label>
+          </div>
 
           <button
             type="button"
@@ -178,6 +256,9 @@ export default function StoresPage() {
               setNeighborhood("all");
               setCategory("all");
               setDonationOnly(false);
+              setPhotoOnly(false);
+              setPriceFilter("all");
+              setActiveQuickTags([]);
               setSortBy("name-asc");
             }}
           >
@@ -194,11 +275,6 @@ export default function StoresPage() {
                 <h3>{shop.name}</h3>
                 <p>{shop.neighborhood || "Bethlehem area"}</p>
                 {shop.address && <p className="shop-meta">{shop.address}</p>}
-                <ul>
-                  {(shop.categories || []).map((tag) => (
-                    <li key={tag}>{tag}</li>
-                  ))}
-                </ul>
                 <div className="shop-badges">
                   {shop.priceRange && <span className="shop-badge">Price: {shop.priceRange}</span>}
                   {shop.donationDropoff && <span className="shop-badge">Donations</span>}

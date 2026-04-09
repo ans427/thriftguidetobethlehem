@@ -16,6 +16,14 @@ const client =
       })
     : null;
 
+function parseDataUrl(dataUrl) {
+  const match = /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/.exec(dataUrl || "");
+  if (!match) return null;
+  const [, mimeType, base64] = match;
+  const buffer = Buffer.from(base64, "base64");
+  return { mimeType, buffer };
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -31,7 +39,7 @@ export default async function handler(req, res) {
     });
   }
 
-  const { storeId, authorName, body } = req.body || {};
+  const { storeId, authorName, body, photoDataUrl, photoFilename } = req.body || {};
   const text = typeof body === "string" ? body.trim() : "";
   const name = typeof authorName === "string" ? authorName.trim() : "";
 
@@ -49,6 +57,29 @@ export default async function handler(req, res) {
       body: text
     };
     if (name) doc.authorName = name.slice(0, 80);
+    if (photoDataUrl) {
+      const parsed = parseDataUrl(photoDataUrl);
+      if (!parsed) {
+        return res.status(400).json({ error: "Photo must be a valid image data URL." });
+      }
+      if (parsed.buffer.length > 6 * 1024 * 1024) {
+        return res.status(400).json({ error: "Photo is too large. Please keep it under 6MB." });
+      }
+
+      const sanitizedName =
+        typeof photoFilename === "string" && photoFilename.trim()
+          ? photoFilename.trim().replace(/[^a-zA-Z0-9._-]/g, "_")
+          : `comment-photo-${Date.now()}.jpg`;
+
+      const asset = await client.assets.upload("image", parsed.buffer, {
+        filename: sanitizedName,
+        contentType: parsed.mimeType
+      });
+      doc.photo = {
+        _type: "image",
+        asset: { _type: "reference", _ref: asset._id }
+      };
+    }
 
     const created = await client.create(doc);
     return res.status(201).json({

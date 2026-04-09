@@ -22,6 +22,12 @@ export const storeCommentType = {
       type: "text",
       rows: 4,
       validation: (Rule) => Rule.required().min(2).max(2000)
+    },
+    {
+      name: "photo",
+      title: "Found Item Photo",
+      type: "image",
+      options: { hotspot: true }
     }
   ],
   preview: {

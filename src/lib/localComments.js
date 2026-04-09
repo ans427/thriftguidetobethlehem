@@ -21,7 +21,7 @@ export function getLocalComments(storeId) {
   return Array.isArray(all[storeId]) ? all[storeId] : [];
 }
 
-export function addLocalComment(storeId, { authorName, body }) {
+export function addLocalComment(storeId, { authorName, body, photoUrl }) {
   if (!storeId) return [];
   const all = readAll();
   const list = Array.isArray(all[storeId]) ? [...all[storeId]] : [];
@@ -29,6 +29,7 @@ export function addLocalComment(storeId, { authorName, body }) {
     id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     authorName: authorName?.trim() || "Anonymous",
     body: body.trim(),
+    ...(photoUrl ? { photoUrl } : {}),
     createdAt: new Date().toISOString(),
     source: "local"
   };
