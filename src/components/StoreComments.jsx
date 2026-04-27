@@ -3,7 +3,7 @@ import { addLocalComment, getLocalComments } from "../lib/localComments";
 import { sanityErrorMessage } from "../lib/sanityErrorMessage";
 import { sanityClient, sanityWriteClient } from "../lib/sanity";
 
-const commentsQuery = `*[_type == "storeComment" && references($storeId)] | order(_createdAt desc) {
+const commentsQuery = `*[_type == "storeComment" && (references($storeId) || (defined($storeSlug) && store->slug.current == $storeSlug))] | order(_createdAt desc) {
   _id,
   authorName,
   body,
@@ -69,7 +69,7 @@ function readFileAsDataUrl(file) {
   });
 }
 
-export default function StoreComments({ storeId, storeName }) {
+export default function StoreComments({ storeId, storeName, storeSlug }) {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [authorName, setAuthorName] = useState("");
@@ -87,13 +87,13 @@ export default function StoreComments({ storeId, storeName }) {
     (window.location.hostname !== "localhost" || window.location.port !== "5173");
 
   const loadComments = useCallback(async () => {
-    if (!storeId) return;
+    if (!storeId && !storeSlug) return;
     if (sanityClient) setLoading(true);
     try {
       let remote = [];
       if (sanityClient) {
         try {
-          const docs = await sanityClient.fetch(commentsQuery, { storeId });
+          const docs = await sanityClient.fetch(commentsQuery, { storeId, storeSlug });
           remote = normalizeSanityComments(docs);
         } catch (e) {
           console.error(e);
@@ -104,7 +104,7 @@ export default function StoreComments({ storeId, storeName }) {
     } finally {
       setLoading(false);
     }
-  }, [storeId]);
+  }, [storeId, storeSlug]);
 
   useEffect(() => {
     loadComments();

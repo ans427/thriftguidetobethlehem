@@ -180,7 +180,7 @@ export default function StoreDetailPage() {
         </section>
       </div>
 
-      <StoreComments storeId={store._id} storeName={store.name} />
+      <StoreComments storeId={store._id} storeName={store.name} storeSlug={store.slug?.current || ""} />
     </div>
   );
 }
