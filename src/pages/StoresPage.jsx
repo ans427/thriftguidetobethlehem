@@ -19,15 +19,12 @@ const allStoresQuery = `*[_type == "thriftStore"] | order(name asc)[0...300]{
 
 const quickFilterTags = [
   "vintage",
-  "secondhand",
   "thrift",
   "consignment",
   "affordable",
   "student-friendly",
   "non-profit",
-  "curated",
-  "furniture",
-  "family clothing"
+  "furniture"
 ];
 
 function includesQuery(shop, query) {
