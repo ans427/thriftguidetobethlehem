@@ -45,25 +45,26 @@ export default function WhyThriftingMattersPage() {
           <ul className="facts-list">
             <li>
               Fashion supply chains contribute significantly to greenhouse gas emissions, and
-              projected growth in textile output creates additional climate risk.
+              projected growth in textile output creates additional climate risk (UNEP, GAO,
+              Earth.Org).
             </li>
             <li>
               Production stages such as fiber processing, dyeing, and finishing are
-              resource-intensive and add substantial water and chemical burdens.
+              resource-intensive and add substantial water and chemical burdens (UNEP, Earth.Org).
             </li>
             <li>
               U.S. textile waste is huge: around 17 million tons in 2018. Of that total, only
               about 2.5 million tons were recovered through recycling (14.7%), leaving most
-              materials to be trashed or burned.
+              materials to be trashed or burned (EPA).
             </li>
             <li>
               Recovery rates also stay low across categories. Clothing and footwear were recycled at
               roughly 13%, while household textiles like sheets and pillowcases reached only about
-              15.8%.
+              15.8% (EPA).
             </li>
             <li>
               Synthetic fabrics can release microfibers during normal washing, contributing to
-              aquatic pollution over time.
+              aquatic pollution over time (UNEP, IPCC).
             </li>
           </ul>
         </section>
