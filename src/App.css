@@ -388,14 +388,30 @@ h2 {
 .shop-grid {
   display: grid;
   gap: 0.75rem;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+@media (max-width: 1200px) {
+  .shop-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .shop-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .shop-card {
   background: #f8faf8;
-  border: 1px solid #e0e8e0;
+  border: 1px solid #b7c9bb;
   border-radius: 12px;
   padding: 0.85rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .shop-card h3 {
@@ -464,6 +480,26 @@ h2 {
   margin: 0 0 0.2rem;
 }
 
+.source-review-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.source-review-item {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: #f8faf8;
+  padding: 0.85rem;
+}
+
+.source-review-item h3 {
+  margin: 0 0 0.45rem;
+}
+
+.source-review-item p {
+  margin: 0.3rem 0;
+}
+
 .facts-list {
   margin: 0;
   padding-left: 1.2rem;
@@ -510,12 +546,13 @@ h2 {
   text-decoration: none;
   color: inherit;
   display: block;
+  height: 100%;
   border-radius: 12px;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .shop-card-link:hover .shop-card {
-  border-color: #2d6a4f;
+  border-color: #245742;
   box-shadow: 0 6px 18px rgba(45, 106, 79, 0.12);
 }
 
@@ -526,7 +563,8 @@ h2 {
 
 .shop-card-cta {
   display: inline-block;
-  margin-top: 0.6rem;
+  margin-top: auto;
+  padding-top: 0.6rem;
   font-size: 0.9rem;
   font-weight: 600;
   color: #2d6a4f;
@@ -933,6 +971,10 @@ h2 {
 }
 
 @media (max-width: 600px) {
+  .shop-grid {
+    grid-template-columns: 1fr;
+  }
+
   .site-brand-logo {
     height: 2rem;
   }

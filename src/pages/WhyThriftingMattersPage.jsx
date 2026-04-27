@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function WhyThriftingMattersPage() {
   return (
     <div className="page">
@@ -31,40 +33,71 @@ export default function WhyThriftingMattersPage() {
             </figure>
           </div>
           <p>
-            Fast fashion may be affordable and convenient, but it comes with a major
-            environmental cost. The fashion industry is responsible for roughly 10% of global
-            carbon emissions, putting it on a similar scale to emissions from the European Union.
-            Even more concerning, emissions from textile production are projected to grow by over
-            60% by 2030 if current consumption patterns continue.
+            Fast fashion is often marketed as cheap and convenient, but its environmental costs are
+            much higher than the price tag. Evidence from Earth.Org, UNEP, EPA, GAO, and the IPCC
+            shows the issue is not just about clothing trends - it is about emissions, material
+            throughput, and waste-system pressure.
+          </p>
+        </section>
+
+        <section className="card">
+          <h2>What the evidence shows</h2>
+          <ul className="facts-list">
+            <li>
+              Fashion supply chains contribute significantly to greenhouse gas emissions, and
+              projected growth in textile output creates additional climate risk.
+            </li>
+            <li>
+              Production stages such as fiber processing, dyeing, and finishing are
+              resource-intensive and add substantial water and chemical burdens.
+            </li>
+            <li>
+              U.S. textile waste is huge: around 17 million tons in 2018. Of that total, only
+              about 2.5 million tons were recovered through recycling (14.7%), leaving most
+              materials to be trashed or burned.
+            </li>
+            <li>
+              Recovery rates also stay low across categories. Clothing and footwear were recycled at
+              roughly 13%, while household textiles like sheets and pillowcases reached only about
+              15.8%.
+            </li>
+            <li>
+              Synthetic fabrics can release microfibers during normal washing, contributing to
+              aquatic pollution over time.
+            </li>
+          </ul>
+        </section>
+
+        <section className="card">
+          <h2>Why this matters locally</h2>
+          <p>
+            In Bethlehem, these global impacts show up as local decisions: where we shop, how long
+            we keep clothes, and whether items get reused or discarded. Thrifting is a practical
+            way to interrupt the overconsumption cycle by extending garment life and reducing demand
+            for new production.
           </p>
           <p>
-            Much of this environmental impact comes from how clothing is made. Resource-heavy
-            processes like dyeing, finishing fabrics, and preparing yarn are among the largest
-            contributors to pollution within the industry. Beyond production, everyday habits also
-            play a role - washing synthetic clothing releases an estimated 500,000 tons of
-            microfibers into oceans each year, which is comparable to 50 billion plastic bottles
-            entering marine environments.
+            This project translates that evidence into action by combining education with tools:
+            store discovery, map-based access, and community tips through comments and photos. The
+            goal is to make the sustainable option easier to choose, not just easier to understand.
           </p>
+        </section>
+
+        <section className="card">
+          <h2>Action steps that make an impact</h2>
+          <ul className="facts-list">
+            <li>Choose one secondhand purchase before buying new this month.</li>
+            <li>Use the map and filters to find nearby stores that match your needs and budget.</li>
+            <li>Donate or rehome usable clothing to keep garments in circulation longer.</li>
+            <li>Share thrift finds to build social momentum around reuse.</li>
+          </ul>
           <p>
-            Fast fashion encourages a cycle of overconsumption, where clothing is worn only a few
-            times before being discarded. This leads to increased waste, higher emissions, and
-            unnecessary strain on natural resources.
-          </p>
-          <p>
-            Thrifting offers a more sustainable alternative. By choosing secondhand clothing, you
-            help reduce demand for new production, extend the life of existing garments, and
-            minimize waste. Small choices like this can collectively make a meaningful impact on
-            reducing the environmental footprint of fashion.
+            Individual choices alone will not solve the full problem, but consistent reuse behavior
+            combined with policy and industry change can move the system toward sustainability.
           </p>
           <p className="source-note">
-            Source:{" "}
-            <a
-              href="https://earth.org/fast-fashions-detrimental-effect-on-the-environment/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Earth.Org - The Environmental Impact of Fast Fashion, Explained
-            </a>
+            Sources and credibility notes:{" "}
+            <Link to="/project-evidence">See the Project evidence page</Link>
           </p>
         </section>
       </div>

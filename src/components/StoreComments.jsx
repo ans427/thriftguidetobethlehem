@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { addLocalComment, getLocalComments } from "../lib/localComments";
 import { sanityErrorMessage } from "../lib/sanityErrorMessage";
 import { sanityClient, sanityWriteClient } from "../lib/sanity";
@@ -116,13 +116,6 @@ export default function StoreComments({ storeId, storeName }) {
     return () => clearTimeout(timer);
   }, [postedNotice]);
 
-  const hint = useMemo(() => {
-    if (canPostToSanity || mode === "server") {
-      return "Comments are saved to your Sanity project.";
-    }
-    return "";
-  }, [canPostToSanity, mode]);
-
   async function handleSubmit(e) {
     e.preventDefault();
     setFormError("");
@@ -228,7 +221,6 @@ export default function StoreComments({ storeId, storeName }) {
   return (
     <section className="card store-comments" aria-labelledby={headingId}>
       <h2 id={headingId}>Visitor comments{storeName ? ` · ${storeName}` : ""}</h2>
-      {hint && <p className="section-hint comments-hint">{hint}</p>}
 
       {loading && <p className="muted">Loading comments…</p>}
 

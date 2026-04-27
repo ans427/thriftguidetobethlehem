@@ -102,8 +102,15 @@ export default function HomePage() {
             Learn how secondhand shopping reduces textile waste, lowers demand for new production,
             and helps combat the environmental impact of fast fashion.
           </p>
+          <p className="muted">
+            Built for Bethlehem-area students and residents who want practical, local alternatives
+            to fast fashion.
+          </p>
           <Link to="/why-thrifting-matters" className="hero-btn hero-btn--ghost">
             Read the full guide
+          </Link>
+          <Link to="/project-evidence" className="hero-btn hero-btn--ghost">
+            View project evidence
           </Link>
         </section>
       </div>

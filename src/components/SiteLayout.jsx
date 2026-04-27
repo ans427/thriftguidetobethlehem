@@ -44,6 +44,9 @@ export default function SiteLayout() {
             <Link to="/why-thrifting-matters" className="site-nav-link">
               Why it matters
             </Link>
+            <Link to="/project-evidence" className="site-nav-link">
+              Project evidence
+            </Link>
           </nav>
         </div>
       </header>
@@ -76,6 +79,9 @@ export default function SiteLayout() {
                 </li>
                 <li>
                   <Link to="/why-thrifting-matters">Why thrifting matters</Link>
+                </li>
+                <li>
+                  <Link to="/project-evidence">Project evidence</Link>
                 </li>
               </ul>
             </div>

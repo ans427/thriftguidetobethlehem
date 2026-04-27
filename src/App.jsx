@@ -5,6 +5,7 @@ import StoresPage from "./pages/StoresPage";
 import StoreDetailPage from "./pages/StoreDetailPage";
 import WhyThriftingMattersPage from "./pages/WhyThriftingMattersPage";
 import MapPage from "./pages/MapPage";
+import ProjectEvidencePage from "./pages/ProjectEvidencePage";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/stores" element={<StoresPage />} />
         <Route path="/stores/:storeRef" element={<StoreDetailPage />} />
         <Route path="/why-thrifting-matters" element={<WhyThriftingMattersPage />} />
+        <Route path="/project-evidence" element={<ProjectEvidencePage />} />
       </Route>
     </Routes>
   );

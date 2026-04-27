@@ -107,7 +107,7 @@ export default function StoreDetailPage() {
 
   return (
     <div className="page store-detail">
-      <Link to="/" className="text-link back-link">
+      <Link to="/stores" className="text-link back-link">
         ← All stores
       </Link>
 
@@ -120,11 +120,7 @@ export default function StoreDetailPage() {
       <div className="content store-detail-grid">
         <section className="card">
           <h2>About</h2>
-          {store.description ? (
-            <p className="store-description">{store.description}</p>
-          ) : (
-            <p className="muted">No description yet—add one in Sanity for this store.</p>
-          )}
+          {store.description ? <p className="store-description">{store.description}</p> : null}
 
           {!!(store.photoGallery && store.photoGallery.length) && (
             <>
